@@ -2,9 +2,8 @@
 //  Pin+CoreDataProperties.swift
 //  VirtualTourist2
 //
-//  Created by Alejandro Ayala-Hurtado on 12/29/16.
-//  Copyright © 2016 MobileApps. All rights reserved.
-//  This file was automatically generated and should not be edited.
+//  Created by Alejandro Ayala-Hurtado on 1/1/17.
+//  Copyright © 2017 MobileApps. All rights reserved.
 //
 
 import Foundation

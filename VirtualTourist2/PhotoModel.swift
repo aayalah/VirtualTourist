@@ -23,7 +23,7 @@ class PhotoModel {
         
         
         FlickrClient.sharedInstance().getPhotosFromLocation(latitude: latitude, longitude: longitude, storeResult: storePhotos) { success, error in
-            
+            return
             
         }
         
@@ -63,7 +63,7 @@ class PhotoModel {
             let secret = item[FlickrClient.JSONResponseKeys.secret] as! String
             let id = item[FlickrClient.JSONResponseKeys.id] as! String
             photo.url = "https://farm\(farm).staticflickr.com/\(server)/\(id)_\(secret).jpg"
-            
+            print(photo.url!)
             pin.addToPhotos(photo)
             
         }

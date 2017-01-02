@@ -12,11 +12,14 @@ import MapKit
 
 class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, NSFetchedResultsControllerDelegate {
     
-    @IBOutlet weak var collectionVIew: UICollectionView!
+    @IBOutlet weak var collectionView: UICollectionView!
     var latitude: Double? = nil
     var longitude: Double? = nil
     
     @IBOutlet weak var map: MKMapView!
+    
+    let model = PhotoModel.sharedInstance()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,10 +93,7 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
         
         
         if photo.photo != nil {
-            cell.loadImage(filename: photo.photo!) { success in
-                
-            }
-            
+            cell.loadImage(filename: photo.photo!)            
         } else {
             
             
@@ -105,18 +105,22 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
                     return documentsDirectory as NSString
                 }
                 
-                //Below function is used in imagePickerController
                 
-                if let data = UIImagePNGRepresentation(cell.image.image!) {
-                    let filename = "\(NSDate()).png"
-                    let path = getDocumentsDirectory().appendingPathComponent(filename)
-                    do {
-                        try data.write(to: URL(string: path)!, options: Data.WritingOptions.atomicWrite)
-                    } catch {
+                if success {
+                    if let data = UIImagePNGRepresentation(cell.image.image!) {
+                        let filename = "\(NSDate()).png"
+                        let path = getDocumentsDirectory().appendingPathComponent(filename)
+                        let url = NSURL(fileURLWithPath: path)
+                        do {
+                           try data.write(to: url.absoluteURL!)
+                        } catch {
+                            print("Could not save image")
+                        }
                         
+                        photo.photo = filename
                     }
+                } else {
                     
-                    photo.photo = filename
                 }
             }
         }
@@ -125,17 +129,53 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
         return cell
     }
     
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch(type) {
+            case .insert:
+                var items = [IndexPath]()
+                items.append(newIndexPath!)
+                collectionView.insertItems(at: items)
+                break;
+            case .delete:
+                var items = [IndexPath]()
+                items.append(indexPath!)
+                collectionView.deleteItems(at: items)
+                break;
+            case .update:
+                break;
+            case .move:
+                break;
+        }
+    }
+    
+    @IBAction func getNewCollection(_ sender: UIButton) {
+        
+        clearPhotos()
+        model.getPhotos(latitude: latitude!, longitude: longitude!)
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            
+        }
+    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
-        cell.isSelected = true
+        let photo = fetchedResultsController.object(at: indexPath) as! Photo
         
-        //let photo = fetchedResultsController.object(at: indexPath) as! Photo
+        fetchedResultsController.managedObjectContext.delete(photo)
         
         
     }
     
+    func clearPhotos() {
+        
+        for obj in fetchedResultsController.fetchedObjects! {
+            fetchedResultsController.managedObjectContext.delete(obj as! NSManagedObject)
+        }
+        
+    }
     
     
     

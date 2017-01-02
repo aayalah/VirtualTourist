@@ -72,13 +72,15 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     
     @objc private func onPress(sender: UILongPressGestureRecognizer) {
-        
-        let location = sender.location(in: map)
-        let coordinate = map.convert(location, toCoordinateFrom: map)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = coordinate
-        map.addAnnotation(annotation)
-        photoModel.getPhotos(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        if sender.state == .ended {
+            let location = sender.location(in: map)
+            let coordinate = map.convert(location, toCoordinateFrom: map)
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coordinate
+            map.addAnnotation(annotation)
+            photoModel.getPhotos(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            
+        }
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {

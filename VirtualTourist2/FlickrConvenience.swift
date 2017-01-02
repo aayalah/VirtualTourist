@@ -14,7 +14,7 @@ extension FlickrClient {
     
     
     
-    func getPhotosFromLocation(latitude: Double, longitude: Double, storeResult: @escaping (_ longitude: Double, _ latitude: Doublea, _ result: AnyObject?) -> Bool, completionHandler: @escaping (Bool, NSError?) -> Void) {
+    func getPhotosFromLocation(latitude: Double, longitude: Double, storeResult: @escaping (_ longitude: Double, _ latitude: Double, _ result: AnyObject?) -> Bool, completionHandler: @escaping (Bool, NSError?) -> Void) {
         
         var parameters = [PhotosGetParameters.method : "\(PhotosMethods.photosForLocation)"]
         parameters[PhotosGetParameters.api_key] = "\(Constants.API_KEY)"
@@ -26,8 +26,8 @@ extension FlickrClient {
         parameters[PhotosGetParameters.bbox] = "\(longitude-1),\(latitude-1),\(longitude+1),\(latitude+1)"
         _ = taskForGetMethod(Constants.Api_Url, parameters: parameters as [String : AnyObject], jsonBody: "") { result, error in
             if error == nil {
-                
-                completionHandler(storeResult(longitude, latitude, result), nil)
+                let success = storeResult(longitude, latitude, result)
+                completionHandler(success, nil)
                 
                 
             } else {
