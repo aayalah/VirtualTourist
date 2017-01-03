@@ -21,7 +21,6 @@
 		D03050C01E16359700015E87 /* FlickrConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03050BF1E16359700015E87 /* FlickrConvenience.swift */; };
 		D03050C21E1635AF00015E87 /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03050C11E1635AF00015E87 /* FlickrConstants.swift */; };
 		D03050C41E1635BB00015E87 /* PhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03050C31E1635BB00015E87 /* PhotoModel.swift */; };
-		D03050EA1E1A1E0700015E87 /* Model.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = D03050E91E1A1E0700015E87 /* Model.xcmappingmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,7 +62,6 @@
 		D03050C11E1635AF00015E87 /* FlickrConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
 		D03050C31E1635BB00015E87 /* PhotoModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoModel.swift; sourceTree = "<group>"; };
 		D03050E81E1A1D9B00015E87 /* VirtualTourist 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "VirtualTourist 2.xcdatamodel"; sourceTree = "<group>"; };
-		D03050E91E1A1E0700015E87 /* Model.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Model.xcmappingmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,7 +172,6 @@
 			isa = PBXGroup;
 			children = (
 				D030508D1E16341200015E87 /* VirtualTourist2.xcdatamodeld */,
-				D03050E91E1A1E0700015E87 /* Model.xcmappingmodel */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -330,7 +327,6 @@
 				D03050C41E1635BB00015E87 /* PhotoModel.swift in Sources */,
 				D03050C21E1635AF00015E87 /* FlickrConstants.swift in Sources */,
 				D03050C01E16359700015E87 /* FlickrConvenience.swift in Sources */,
-				D03050EA1E1A1E0700015E87 /* Model.xcmappingmodel in Sources */,
 				D03050891E16341100015E87 /* MapViewController.swift in Sources */,
 				D03050BB1E16354B00015E87 /* PhotoCell.swift in Sources */,
 				D03050871E16341100015E87 /* AppDelegate.swift in Sources */,
