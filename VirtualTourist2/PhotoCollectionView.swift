@@ -155,6 +155,14 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
                 )
                 break;
             case .update:
+                batch.append(
+                    BlockOperation(block: { [weak self] in
+                        if let this = self {
+                            this.collectionView!.reloadItems(at: [indexPath!])
+                        }
+                    })
+                )
+
                 break;
             case .move:
                 break;
