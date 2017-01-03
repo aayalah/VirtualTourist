@@ -25,15 +25,19 @@ class PhotoCell: UICollectionViewCell {
                 
                 let url = URL(string: url)!
                 let data = try Data(contentsOf: url)
-                self.image.image = UIImage(data: data)
+                
       
                 
                 
-                completionHandler(true)
+                
                 
                 DispatchQueue.main.async {
+                    self.image.image = UIImage(data: data)
                     self.stopLoading()
+                    completionHandler(true)
                 }
+                
+                
             } catch {
                 completionHandler(false)
             }
@@ -41,8 +45,10 @@ class PhotoCell: UICollectionViewCell {
     }
     
     func startLoading() {
+        indicator.isHidden = false
+        placeholder.isHidden = false
         indicator.startAnimating()
-        
+        image.isHidden = true
     }
     
     func stopLoading() {

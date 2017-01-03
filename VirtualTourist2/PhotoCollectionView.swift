@@ -22,11 +22,16 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     
     var batch = [BlockOperation]()
     
+    @IBOutlet weak var newCollectionButton: UIButton!
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        newCollectionButton.isEnabled = false
         initializeFetchedResultsController()
         addPin()
+        
         // Do any additional setup after loading the view.
     }
     
@@ -44,9 +49,11 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     
     func reset() {
         PhotoModel.sharedInstance().getPhotos(latitude: latitude!, longitude: longitude!)
-        
         DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async(execute: {
             self.fetchPhotos()
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
         })
             
     }
@@ -55,6 +62,7 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     func fetchPhotos() {
         do {
                 try fetchedResultsController.performFetch()
+                newCollectionButton.isEnabled = true
         } catch {
             fatalError("Failed to initialize FetchedResultsController: \(error)")
         }
@@ -85,7 +93,15 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     //2
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
-        return (fetchedResultsController.fetchedObjects?.count)!
+         let counter = (fetchedResultsController.fetchedObjects?.count)!
+        
+        if counter > 0 {
+      //      newCollectionButton.isEnabled = true
+        } else {
+            print("no images")
+        }
+        
+         return counter
     }
     
     //3
@@ -112,6 +128,7 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
             }
         }
         
+
         
         return cell
     }
@@ -120,6 +137,7 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
         switch(type) {
             case .insert:
                 batch.append(
+                    
                     BlockOperation(block: { [weak self] in
                         if let this = self {
                             this.collectionView!.insertItems(at: [newIndexPath!])
@@ -147,15 +165,9 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     @IBAction func getNewCollection(_ sender: UIButton) {
         
         clearPhotos()
-        model.getPhotos(latitude: latitude!, longitude: longitude!)
+        newCollectionButton.isEnabled = false
+        reset()
         
-        do {
-            try fetchedResultsController.performFetch()
-            try fetchedResultsController.managedObjectContext.save()
-            collectionView.reloadData()
-         } catch {
-            
-        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

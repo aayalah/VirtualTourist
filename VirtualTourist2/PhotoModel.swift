@@ -21,12 +21,14 @@ class PhotoModel {
     let context =  (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     
-    func getPhotos(latitude: Double, longitude: Double) {
+    func getPhotos(latitude: Double, longitude: Double, completionHandler: ((Bool) -> Void)? = nil) {
         
         
         
         FlickrClient.sharedInstance().getPhotosFromLocation(latitude: latitude, longitude: longitude, storeResult: storePhotos) { success, error in
-            return
+            if let completionHandler = completionHandler {
+                completionHandler(success)
+            }
             
         }
         
