@@ -18,6 +18,9 @@ class PhotoModel {
         return instance
     }
     
+    let context =  (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
+    
     func getPhotos(latitude: Double, longitude: Double) {
         
         
@@ -30,21 +33,53 @@ class PhotoModel {
     }
     
     private func storePhotos(longitude:Double, latitude: Double, result: AnyObject?) -> Bool {
-        let delegate = UIApplication.shared.delegate as! AppDelegate
-        let context = delegate.persistentContainer.viewContext
-        let entity =  NSEntityDescription.entity(forEntityName: "Pin",
-                                                 in:context)
         
-        let pin = NSManagedObject(entity: entity!,
-                                  insertInto: context) as! Pin
+        var pin = getPin(latitude: latitude, longitude: longitude)
         
-        pin.latitude = latitude
-        pin.longitude = longitude
+        if pin == nil {
+            
+            
+            let entity =  NSEntityDescription.entity(forEntityName: "Pin",
+                                                     in:context)
+            
+            pin = NSManagedObject(entity: entity!,
+                                      insertInto: context) as? Pin
+            
+            pin?.latitude = latitude
+            pin?.longitude = longitude
+            
+        }
+        
         
         if let photoResults = parsePhotoResults(result: result) {
-            return addPhotosToContext(longitude: longitude, latitude: latitude, result: photoResults, pin: pin)
+            return addPhotosToContext(longitude: longitude, latitude: latitude, result: photoResults, pin: pin!)
         }
+
+        
         return false
+        
+    }
+    
+    private func getPin(latitude: Double, longitude: Double) -> Pin? {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+        let pinSort = NSSortDescriptor(key: "latitude", ascending: true)
+        request.sortDescriptors = [pinSort]
+        let epsilon = 0.000001
+        request.predicate = NSPredicate(format: "(%K BETWEEN {\(latitude - epsilon), \(latitude + epsilon) }) AND (%K BETWEEN {\(longitude - epsilon), \(longitude + epsilon) })", "latitude", "longitude")
+        
+        let frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        do {
+            try frc.performFetch()
+            if (frc.fetchedObjects?.count)! > 0 {
+                return frc.fetchedObjects?[0] as? Pin
+            } else {
+                return nil
+            }
+            
+        } catch {
+            
+        }
+        return nil
         
     }
     

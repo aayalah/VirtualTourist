@@ -20,6 +20,8 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     
     let model = PhotoModel.sharedInstance()
     
+    var batch = [BlockOperation]()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,13 +44,17 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     
     func reset() {
         PhotoModel.sharedInstance().getPhotos(latitude: latitude!, longitude: longitude!)
-        fetchPhotos()
+        
+        DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async(execute: {
+            self.fetchPhotos()
+        })
+            
     }
     
     
     func fetchPhotos() {
         do {
-            try fetchedResultsController.performFetch()
+                try fetchedResultsController.performFetch()
         } catch {
             fatalError("Failed to initialize FetchedResultsController: \(error)")
         }
@@ -93,34 +99,15 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
         
         
         if photo.photo != nil {
-            cell.loadImage(filename: photo.photo!)            
+           cell.loadImage(data: photo.photo!)
         } else {
-            
-            
+    
             cell.loadImage(url: photo.url!) { success in
-                
-                func getDocumentsDirectory() -> NSString {
-                    let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-                    let documentsDirectory = paths[0]
-                    return documentsDirectory as NSString
-                }
-                
-                
+    
                 if success {
                     if let data = UIImagePNGRepresentation(cell.image.image!) {
-                        let filename = "\(NSDate()).png"
-                        let path = getDocumentsDirectory().appendingPathComponent(filename)
-                        let url = NSURL(fileURLWithPath: path)
-                        do {
-                           try data.write(to: url.absoluteURL!)
-                        } catch {
-                            print("Could not save image")
-                        }
-                        
-                        photo.photo = filename
+                        photo.photo = data as NSData?
                     }
-                } else {
-                    
                 }
             }
         }
@@ -132,14 +119,22 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch(type) {
             case .insert:
-                var items = [IndexPath]()
-                items.append(newIndexPath!)
-                collectionView.insertItems(at: items)
+                batch.append(
+                    BlockOperation(block: { [weak self] in
+                        if let this = self {
+                            this.collectionView!.insertItems(at: [newIndexPath!])
+                        }
+                    })
+                )
                 break;
             case .delete:
-                var items = [IndexPath]()
-                items.append(indexPath!)
-                collectionView.deleteItems(at: items)
+                batch.append(
+                    BlockOperation(block: { [weak self] in
+                        if let this = self {
+                            this.collectionView!.deleteItems(at: [indexPath!])
+                        }
+                    })
+                )
                 break;
             case .update:
                 break;
@@ -148,6 +143,7 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
         }
     }
     
+    
     @IBAction func getNewCollection(_ sender: UIButton) {
         
         clearPhotos()
@@ -155,7 +151,9 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
         
         do {
             try fetchedResultsController.performFetch()
-        } catch {
+            try fetchedResultsController.managedObjectContext.save()
+            collectionView.reloadData()
+         } catch {
             
         }
     }
@@ -172,11 +170,38 @@ class PhotoCollectionView: UIViewController, UICollectionViewDataSource, UIColle
     func clearPhotos() {
         
         for obj in fetchedResultsController.fetchedObjects! {
-            fetchedResultsController.managedObjectContext.delete(obj as! NSManagedObject)
+            fetchedResultsController.managedObjectContext.delete(obj as! Photo)
         }
+        
+        
+        do {
+            
+         try fetchedResultsController.managedObjectContext.save()
+        } catch {
+            
+        }
+        
         
     }
     
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        collectionView!.performBatchUpdates({ () -> Void in
+            for operation: BlockOperation in self.batch {
+                operation.start()
+            }
+        }, completion: { (finished) -> Void in
+            self.batch.removeAll(keepingCapacity: false)
+        })
+    }
+    
+    
+    deinit {
+        for operation: BlockOperation in batch {
+            operation.cancel()
+        }
+        
+        batch.removeAll(keepingCapacity: false)
+    }
     
     
 }

@@ -25,13 +25,14 @@ class PhotoCell: UICollectionViewCell {
                 
                 let url = URL(string: url)!
                 let data = try Data(contentsOf: url)
+                self.image.image = UIImage(data: data)
+      
                 
+                
+                completionHandler(true)
                 
                 DispatchQueue.main.async {
                     self.stopLoading()
-                    self.image.image = UIImage(data: data)
-                    
-                    completionHandler(true)
                 }
             } catch {
                 completionHandler(false)
@@ -51,10 +52,10 @@ class PhotoCell: UICollectionViewCell {
         image.isHidden = false
     }
     
-    func loadImage(filename: String) {         
-            let path = getDocumentsDirectory().appendingPathComponent(filename)
-            self.image.image = UIImage(contentsOfFile: path)
-        
+    func loadImage(data: NSData) {
+        startLoading()
+        self.image.image = UIImage(data: data as Data)
+        stopLoading()
     }
     
     private func getDocumentsDirectory() -> NSString {

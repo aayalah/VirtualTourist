@@ -58,7 +58,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          */
         let container = NSPersistentContainer(name: "VirtualTourist2")
         
-        
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.
